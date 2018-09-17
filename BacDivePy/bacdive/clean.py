@@ -74,7 +74,11 @@ def implode_fattened_df(df):
                 if tmp is not None and tmp !=np.nan and str(tmp)!='nan':                
                     if '-' in tmp: # pragma: no cover
                         tmps_+=[tmp_ for tmp_ in range(int(tmp.split('-')[0][:2]),int(tmp.split('-')[1][:2]))]
+                    elif '>' in tmp or '<' in tmp:
+                        #print ('normas '+tmp)
+                        tmps_.append(tmp[:3])
                     else:
+                        #print ('hueva '+tmp)
                         tmps_.append(int(tmp[:2]))
                 else: # pragma: no cover
                     tmps_.append(tmp)
