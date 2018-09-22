@@ -13,25 +13,27 @@ from random import shuffle
 
 bacdive_url = "http://bacdive.dsmz.de/api/bacdive/bacdive_id/"
 
-def crawl_info(u, p, ids, outdir):
 
+def crawl_info(u, p, _ids, outdir):
     print("# Crawling Bacterial MetaData..")
     header = {'Accept': 'application/json'}
 
-    outfile = outdir+"/zz-ids.txt"
+    outfile = outdir + "/zz-ids.txt"
     with open(outfile, 'w') as f:
-        f.write("\n".join(ids))
+        f.write("\n".join(_ids))
 
-    for _id in ids:
+    for _id in _ids:
         worked = False
         tried = 1
+        print(_id)
         while not worked:
             try:
-                time.sleep(2*tried)
-                resp = requests.get(bacdive_url+"/%s/"%_id, auth=(u, p), headers=header)
-                if(resp.ok):
+                time.sleep(2 * tried)
+                resp = requests.get(_id, auth=(u, p), headers=header)
+
+                if resp.ok:
                     data = resp.json()
-                    outfile = outdir+"/%s.json"%_id
+                    outfile = outdir + "/%s.json" % (_ids.index(_id) + 1)
                     with open(outfile, 'w') as f:
                         f.write(json.dumps(data, indent=2, separators=(',', ': ')))
                     worked = True
@@ -39,20 +41,22 @@ def crawl_info(u, p, ids, outdir):
                 print("ID: %s  failed.. retrying" % _id)
                 tried += 5
 
-def crawl_ids(u,p):
-    ids = []
+
+def crawl_ids(u, p):
+    ids_ = []
     data = {}
     bacdive_current_url = bacdive_url
     header = {'Accept': 'application/json'}
-    iterator = 0
+
 
     print("# Crawling IDs..")
-    while bacdive_current_url != "null":
-        resp = requests.get(bacdive_current_url, auth=(u,p), headers=header)
-        if(resp.ok):
+    # while bacdive_current_url != "null":
+    for i in range(1):
+        resp = requests.get(bacdive_current_url, auth=(u, p), headers=header)
+        if resp.ok:
             data = resp.json()
             for r in data['results']:
-                ids.append(r['url'].replace(bacdive_url, "")[0:-1])
+                ids_.append(r['url'].replace(bacdive_url, "")[0:-1])
             bacdive_current_url = data['next']
             time.sleep(3)
         else:
@@ -64,9 +68,10 @@ def crawl_ids(u,p):
         elif bacdive_current_url[0:4] != "http":
             bacdive_current_url = "null"
 
-    print(" ")
+        print("")
 
-    return ids
+    return ids_
+
 
 # Main #
 if __name__ == "__main__":
