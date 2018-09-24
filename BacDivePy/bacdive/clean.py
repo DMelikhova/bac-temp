@@ -92,7 +92,6 @@ def flatten_df(results):
     flat_fields = []
 
     for section_, sub_section_lists in results.items():
-
         # if not refrences then dict
         if isinstance(sub_section_lists, dict):
             for sub_section, sub_section_list in sub_section_lists.items():
