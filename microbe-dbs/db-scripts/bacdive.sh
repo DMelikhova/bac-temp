@@ -5,6 +5,30 @@
 
 
 # download files from web site
+function rep_download_files() {
+
+    out_dir=""
+    if [ -z $1 ]
+    then
+        outdir=bacdive_ #тут заменить на нужную дату
+    else
+        outdir=$1/bacdive_
+    fi
+    # mkdir -p $outdir &&
+    cd $outdir
+	outdir=$(pwd -P)
+
+	echo -ne "Enter BacDive username : "
+	read user
+	echo -ne "Enter BacDive password : "
+	read -s password
+
+    echo -e "\n\nDownloading BacDive $release [$outdir].."
+	dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+	python3 $dir/bacdive.py $user $password $outdir
+
+}
+
 function download_files() {
 
     release=$(date +%Y-%m-%d)
