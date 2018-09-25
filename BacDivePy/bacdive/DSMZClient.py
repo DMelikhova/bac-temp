@@ -38,7 +38,6 @@ def retrieve(search, search_type):  # pragma: no cover
         except:
             warn('no information found for: ' + str(search_value))
             continue
-        print(locations)
         if isinstance(locations, dict):
             for ulrloc in tqdm(locations['results']):
                 df_ = flatten_df(Dive('%s?format=json' % ulrloc['url']).call())
