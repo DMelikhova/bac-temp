@@ -24,7 +24,7 @@ from bacdive.build_url import get_url
 from bacdive.clean_temp import implode_fattened_df_temp, flatten_df_temp
 
 
-def retrieve(search, search_type):  # pragma: no cover
+def retrieve_temp(search, search_type):  # pragma: no cover
 
     build_final = []
     if not isinstance(search, list):
