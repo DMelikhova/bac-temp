@@ -21,10 +21,10 @@ import pandas as pd
 # import numpy as np
 
 from bacdive.build_url import get_url
-from bacdive.clean import implode_fattened_df, flatten_df
+from bacdive.clean_temp import implode_fattened_df_temp, flatten_df_temp
 
 
-def retrieve(search, search_type):  # pragma: no cover
+def retrieve_temp(search, search_type):  # pragma: no cover
 
     build_final = []
     if not isinstance(search, list):
@@ -35,38 +35,38 @@ def retrieve(search, search_type):  # pragma: no cover
         url = get_url(search_value, search_type)
         try:
             locations = Dive(url).call()
-        except:
+        except Exception:
             warn('no information found for: ' + str(search_value))
             continue
         if isinstance(locations, dict):
             for ulrloc in tqdm(locations['results']):
-                df_ = flatten_df(Dive('%s?format=json' % ulrloc['url']).call())
+                df_ = flatten_df_temp(Dive('%s?format=json' % ulrloc['url']).call())
                 df_['DSMZ_id'] = [ulrloc['url'].split('/')[-2]] * df_.shape[0]
-                df_.index = (df_['DSMZ_id'] + '||' + df_['Section'] + '||' +
-                             df_['Subsection'] + '||' + df_['Field_ID']).values
+                df_.index = (df_['DSMZ_id'] + '||' + df_['Number'] + '||' + df_['Field_ID']).values
                 flat_dfs.append(df_)
         if isinstance(locations, list):
             for ulrloc in tqdm(locations):
-                df_ = flatten_df(Dive('%s?format=json' % ulrloc['url']).call())
+                df_ = flatten_df_temp(Dive('%s?format=json' % ulrloc['url']).call())
                 df_['DSMZ_id'] = [ulrloc['url'].split('/')[-2]] * df_.shape[0]
-                df_.index = (df_['DSMZ_id'] + '||' + df_['Section'] + '||' +
-                             df_['Subsection'] + '||' + df_['Field_ID']).values
+                df_.index = (df_['DSMZ_id'] + '||' + df_['Number'] + '||' + df_['Field_ID']).values
                 flat_dfs.append(df_)
-        build_final.append(implode_fattened_df(pd.concat(flat_dfs)))
-
+        build_final.append(implode_fattened_df_temp(pd.concat(flat_dfs)))
+    if len(build_final) == 0:
+        return None
     return pd.concat(build_final, axis=1).sort_index()
+
 
 
 def DSMZ_login(username, password=None, timeout=30):  # pragma: no cover
 
     """
     Get an authentication token for SEED web services.
-    
+
     The authentication token is also stored in the .patric_config file in
     the user's home directory. The SeedClient object retrieves the
     authentication token from the file so the user does not need to keep
     getting a new token.
-    
+
     Parameters
     ----------
     username : str
@@ -75,7 +75,7 @@ def DSMZ_login(username, password=None, timeout=30):  # pragma: no cover
     Password or None to prompt and enter password
     timeout : integer
     Number of seconds to wait for response
-    
+
     Returns
     -------
     str
@@ -124,13 +124,13 @@ class Dive(object):  # pragma: no cover
     def __init__(self, url):
 
         """ Initialize object.
-        
+
         Parameters
         ----------
         url : str, URL of service endpoint
         Authentication token for SEED web services, when None get the
         token from the .patric_config file when calling a method
-        
+
         """
 
         self.url = url
@@ -141,18 +141,18 @@ class Dive(object):  # pragma: no cover
     def call(self, timeout=1800):  # pragma: no cover
 
         """ Call a server and wait for the response.
-        
+
         Parameters
         ----------
         Dictionary of input parameters for method
         timeout : integer
         Number of seconds to wait for response
-        
+
         Returns
         -------
         data
         Output of method in JSON format
-        
+
         Raises
         ------
         ServerError
@@ -180,14 +180,14 @@ class Dive(object):  # pragma: no cover
 
     def retrieve_authentication(self):  # pragma: no cover
 
-        """ 
+        """
         Retrieve the authentication username and password from the config file.
 
         Raises
         ------
         AuthenticationError
         When there is a problem with the authentication section in the config file
-        
+
         """
 
         config = configparser.ConfigParser()
