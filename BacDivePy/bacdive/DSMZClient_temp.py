@@ -35,7 +35,7 @@ def retrieve_temp(search, search_type):  # pragma: no cover
         url = get_url(search_value, search_type)
         try:
             locations = Dive(url).call()
-        except:
+        except Exception:
             warn('no information found for: ' + str(search_value))
             continue
         if isinstance(locations, dict):
@@ -51,8 +51,10 @@ def retrieve_temp(search, search_type):  # pragma: no cover
                 df_.index = (df_['DSMZ_id'] + '||' + df_['Number'] + '||' + df_['Field_ID']).values
                 flat_dfs.append(df_)
         build_final.append(implode_fattened_df_temp(pd.concat(flat_dfs)))
-
+    if len(build_final) == 0:
+        return None
     return pd.concat(build_final, axis=1).sort_index()
+
 
 
 def DSMZ_login(username, password=None, timeout=30):  # pragma: no cover
